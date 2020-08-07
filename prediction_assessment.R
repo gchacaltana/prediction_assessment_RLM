@@ -16,7 +16,7 @@ head(dataset)
 summary(dataset)
 # 26 observaciones con 5 variables.
 
-# Valores de configuración para la predicción
+# Valores de configuración para la partición de datos
 test_seed <- 240388
 data_train_p <- 0.75
 data_train_times <- 1
@@ -43,3 +43,38 @@ summary(data_train$tejados)
 
 # Información del conjunto de datos de validación para la variable Tejados
 summary(data_test$tejados)
+
+### -----------------------------------------------------
+### Construcción de modelos y validación Cruzada
+### -----------------------------------------------------
+
+crossModel <- tejados~gastos+clientes+marcas+potencial
+
+# Variables de configuración
+repetitions <- 5
+k <- 10
+hyperparameters <- as.data.frame(1)
+
+## Construcción de modelos
+
+## Modelo Lineal Normal
+set.seed(test_seed)
+normal_linear_model<-train(crossModel,data = data_train,method ="glm", trControl = trainControl(method = "repeatedcv",number = k, repeats = repetitions, returnResamp = "all"))
+
+# Información del Modelo Normal Lineal
+summary(normal_linear_model)
+
+# Resultado del Modelo Normal Lineal
+normal_linear_model$results
+
+# parameter     RMSE Rsquared      MAE   RMSESD RsquaredSD    MAESD
+#     1      none 9.147033 0.992309 8.029442 4.118859 0.03105983 3.859554
+
+
+normal_linear_model$resample
+
+# Información del Error Cuadrático Medio (RMSE)
+summary(normal_linear_model$resample$RMSE)
+#   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+# 1.024   6.509   9.119   9.147  12.509  18.797
+
