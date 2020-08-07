@@ -99,3 +99,25 @@ gamma_model$resample
 summary(gamma_model$resample$RMSE)
 #  Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
 # 9.481  18.957  27.212  41.341  54.015 146.064
+
+## Modelo Normal Inversa con enlace logaritmico
+set.seed(test_seed)
+normal_inverse_model<-train(crossModel,data = data_train,method ="glm", family = inverse.gaussian(link=log),trControl = trainControl(method = "repeatedcv",number = k, repeats = repetitions, returnResamp = "all"))
+
+# Información del Modelo Normal Inversa
+normal_inverse_model
+summary(normal_inverse_model)
+
+# Resultado del Modelo Normal Inversa
+normal_inverse_model$results
+
+# parameter     RMSE  Rsquared      MAE   RMSESD RsquaredSD  MAESD
+#    1      none 71.43486 0.9526925 56.43195 69.43507   0.162222 49.277
+
+normal_inverse_model$resample
+
+# Información del Error Cuadrático Medio (RMSE) - Modelo Normal Inversa
+summary(normal_inverse_model$resample$RMSE)
+#  Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+# 4.837  26.297  52.455  71.435  78.669 271.215
+
