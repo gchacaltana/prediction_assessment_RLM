@@ -62,6 +62,7 @@ set.seed(test_seed)
 normal_linear_model<-train(crossModel,data = data_train,method ="glm", trControl = trainControl(method = "repeatedcv",number = k, repeats = repetitions, returnResamp = "all"))
 
 # Información del Modelo Normal Lineal
+normal_linear_model
 summary(normal_linear_model)
 
 # Resultado del Modelo Normal Lineal
@@ -73,8 +74,28 @@ normal_linear_model$results
 
 normal_linear_model$resample
 
-# Información del Error Cuadrático Medio (RMSE)
+# Información del Error Cuadrático Medio (RMSE) - Modelo Normal Lineal
 summary(normal_linear_model$resample$RMSE)
 #   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
 # 1.024   6.509   9.119   9.147  12.509  18.797
 
+## Modelo Gamma con enlace logarítmico
+set.seed(test_seed)
+gamma_model<-train(crossModel,data = data_train,method ="glm", family = Gamma(link=log),trControl = trainControl(method = "repeatedcv",number = k, repeats = repetitions, returnResamp = "all"))
+
+# Información del Modelo Gamma
+gamma_model
+summary(gamma_model)
+
+# Resultado del Modelo Gamma
+gamma_model$results
+
+#  parameter     RMSE  Rsquared      MAE   RMSESD RsquaredSD    MAESD
+#      1      none 41.34139 0.9691626 33.37374 34.59123   0.120714 25.64806
+
+gamma_model$resample
+
+# Información del Error Cuadrático Medio (RMSE) - Modelo Gamma
+summary(gamma_model$resample$RMSE)
+#  Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+# 9.481  18.957  27.212  41.341  54.015 146.064
