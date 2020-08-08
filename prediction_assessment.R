@@ -1,6 +1,6 @@
 # Evaluación de la Predicción en RLM
 # Instalación de paquetes
-# install.packages("caret", "ggplot2")
+# install.packages("caret", "ggplot2", "Kknn")
 
 # Especificando el directorio de trabajo
 dir <- "/path/project_directory/"
@@ -53,11 +53,13 @@ crossModel <- tejados~gastos+clientes+marcas+potencial
 # Variables de configuración
 repetitions <- 5
 k <- 10
-hyperparameters <- as.data.frame(1)
+metric <- "RMSE"
 
 ## Construcción de modelos
 
-## Modelo Lineal Normal
+### -----------------------------------------------------
+### Modelo Lineal Normal
+### -----------------------------------------------------
 set.seed(test_seed)
 normal_linear_model<-train(crossModel,data = data_train,method ="glm", trControl = trainControl(method = "repeatedcv",number = k, repeats = repetitions, returnResamp = "all"))
 
@@ -79,7 +81,11 @@ summary(normal_linear_model$resample$RMSE)
 #   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
 # 1.024   6.509   9.119   9.147  12.509  18.797
 
-## Modelo Gamma con enlace logarítmico
+
+### -----------------------------------------------------
+### Modelo Gamma con enlace logarítmico
+### -----------------------------------------------------
+
 set.seed(test_seed)
 gamma_model<-train(crossModel,data = data_train,method ="glm", family = Gamma(link=log),trControl = trainControl(method = "repeatedcv",number = k, repeats = repetitions, returnResamp = "all"))
 
@@ -100,7 +106,11 @@ summary(gamma_model$resample$RMSE)
 #  Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
 # 9.481  18.957  27.212  41.341  54.015 146.064
 
-## Modelo Normal Inversa con enlace logaritmico
+
+### -----------------------------------------------------
+### Modelo Normal Inversa con enlace logaritmico
+### -----------------------------------------------------
+
 set.seed(test_seed)
 normal_inverse_model<-train(crossModel,data = data_train,method ="glm", family = inverse.gaussian(link=log),trControl = trainControl(method = "repeatedcv",number = k, repeats = repetitions, returnResamp = "all"))
 
@@ -121,3 +131,25 @@ summary(normal_inverse_model$resample$RMSE)
 #  Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
 # 4.837  26.297  52.455  71.435  78.669 271.215
 
+### -----------------------------------------------------
+### Modelo KNN
+### -----------------------------------------------------
+
+library(kknn)
+
+hyperparameters <- expand.grid(kmax = seq(from = 1,to = 10,by = 1),distance = 2,kernel = c("optimal", "epanechnikov","gaussian"))
+
+knn_train_control <- trainControl(method = "repeatedcv", number = k,repeats = repetitions, returnResamp = "final", verboseIter = FALSE)
+
+set.seed(test_seed)
+knn_model <- train(crossModel, data = data_train,method = "kknn",tuneGrid = hyperparameters,metric = metric,trControl = knn_train_control)
+
+# Información del Modelo KNN
+knn_model
+
+# Resultado del Modelo KNN
+knn_model$results
+
+# Gráfica
+ggplot(knn_model , highlight = TRUE) + scale_x_discrete(breaks = hyperparameters$kmax) +
+  labs(title = "Gráfica. Raíz del Error Cuadrático Medio - Modelo KNN", x = "K") + theme_bw()
