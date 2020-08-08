@@ -55,10 +55,8 @@ repetitions <- 5
 k <- 10
 metric <- "RMSE"
 
-## Construcción de modelos
-
 ### -----------------------------------------------------
-### Modelo Lineal Normal
+### Construcción del Modelo Lineal Normal
 ### -----------------------------------------------------
 set.seed(test_seed)
 normal_linear_model<-train(crossModel,data = data_train,method ="glm", trControl = trainControl(method = "repeatedcv",number = k, repeats = repetitions, returnResamp = "all"))
@@ -81,6 +79,44 @@ summary(normal_linear_model$resample$RMSE)
 #   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
 # 1.024   6.509   9.119   9.147  12.509  18.797
 
+library(ggpubr)
+p1 <- ggplot(data = normal_linear_model$resample, aes(x = RMSE)) +
+  geom_density(alpha = 0.5, fill = "gray50") +
+  geom_vline(xintercept = mean(normal_linear_model$resample$RMSE),
+             linetype = "dashed") +
+  theme_bw() 
+p2 <- ggplot(data = normal_linear_model$resample, aes(x = 1, y = RMSE)) +
+  geom_boxplot(outlier.shape = NA, alpha = 0.5, fill = "gray50") +
+  geom_jitter(width = 0.05) +
+  labs(x = "") +
+  theme_bw() +
+  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
+p3 <- ggplot(data = normal_linear_model$resample, aes(x = Rsquared)) +
+  geom_density(alpha = 0.5, fill = "gray50") +
+  geom_vline(xintercept = mean(normal_linear_model$resample$Rsquared),
+             linetype = "dashed") +
+  theme_bw() 
+p4 <- ggplot(data = normal_linear_model$resample, aes(x = 1, y = Rsquared)) +
+  geom_boxplot(outlier.shape = NA, alpha = 0.5, fill = "gray50") +
+  geom_jitter(width = 0.05) +
+  labs(x = "") +
+  theme_bw() +
+  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
+p5 <- ggplot(data = normal_linear_model$resample, aes(x = MAE)) +
+  geom_density(alpha = 0.5, fill = "gray50") +
+  geom_vline(xintercept = mean(normal_linear_model$resample$MAE),
+             linetype = "dashed") +
+  theme_bw() 
+p6 <- ggplot(data = normal_linear_model$resample, aes(x = 1, y = MAE)) +
+  geom_boxplot(outlier.shape = NA, alpha = 0.5, fill = "gray50") +
+  geom_jitter(width = 0.05) +
+  labs(x = "") +
+  theme_bw() +
+  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
+
+nlm_plot <- ggarrange(p1, p2, p3, p4, p5, p6, ncol = 2, nrow = 3)
+nlm_plot <- annotate_figure(nlm_plot,top = text_grob("Evaluación del Modelo Lineal Normal", size = 15))
+nlm_plot
 
 ### -----------------------------------------------------
 ### Modelo Gamma con enlace logarítmico
@@ -106,6 +142,49 @@ summary(gamma_model$resample$RMSE)
 #  Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
 # 9.481  18.957  27.212  41.341  54.015 146.064
 
+p1 <- ggplot(data = gamma_model$resample, aes(x = RMSE)) +
+  geom_density(alpha = 0.5, fill = "gray50") +
+  geom_vline(xintercept = mean(gamma_model$resample$RMSE),
+             linetype = "dashed") +
+  theme_bw()
+
+p2 <- ggplot(data = gamma_model$resample, aes(x = 1, y = RMSE)) +
+  geom_boxplot(outlier.shape = NA, alpha = 0.5, fill = "gray50") +
+  geom_jitter(width = 0.05) +
+  labs(x = "") +
+  theme_bw() +
+  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
+
+p3 <- ggplot(data = gamma_model$resample, aes(x = Rsquared)) +
+  geom_density(alpha = 0.5, fill = "gray50") +
+  geom_vline(xintercept = mean(gamma_model$resample$Rsquared),
+             linetype = "dashed") +
+  theme_bw()
+
+p4 <- ggplot(data = gamma_model$resample, aes(x = 1, y = Rsquared)) +
+  geom_boxplot(outlier.shape = NA, alpha = 0.5, fill = "gray50") +
+  geom_jitter(width = 0.05) +
+  labs(x = "") +
+  theme_bw() +
+  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
+
+p5 <- ggplot(data = gamma_model$resample, aes(x = MAE)) +
+  geom_density(alpha = 0.5, fill = "gray50") +
+  geom_vline(xintercept = mean(gamma_model$resample$MAE),
+             linetype = "dashed") +
+  theme_bw()
+
+p6 <- ggplot(data = gamma_model$resample, aes(x = 1, y = MAE)) +
+  geom_boxplot(outlier.shape = NA, alpha = 0.5, fill = "gray50") +
+  geom_jitter(width = 0.05) +
+  labs(x = "") +
+  theme_bw() +
+  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
+
+gamma_plot <- ggarrange(p1, p2, p3, p4, p5, p6, ncol = 2, nrow = 3)
+gamma_plot <- annotate_figure(gamma_plot, top = text_grob("Evaluación del Modelo Gamma (enlace logarítmico)", size = 15))
+gamma_plot
+
 
 ### -----------------------------------------------------
 ### Modelo Normal Inversa con enlace logaritmico
@@ -130,6 +209,45 @@ normal_inverse_model$resample
 summary(normal_inverse_model$resample$RMSE)
 #  Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
 # 4.837  26.297  52.455  71.435  78.669 271.215
+
+## Gráficas de evaluación de la precisión
+p1 <- ggplot(data = normal_inverse_model$resample, aes(x = RMSE)) +
+  geom_density(alpha = 0.5, fill = "gray50") +
+  geom_vline(xintercept = mean(normal_inverse_model$resample$RMSE),
+             linetype = "dashed") +
+  theme_bw() 
+p2 <- ggplot(data = normal_inverse_model$resample, aes(x = 1, y = RMSE)) +
+  geom_boxplot(outlier.shape = NA, alpha = 0.5, fill = "gray50") +
+  geom_jitter(width = 0.05) +
+  labs(x = "") +
+  theme_bw() +
+  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
+p3 <- ggplot(data = normal_inverse_model$resample, aes(x = Rsquared)) +
+  geom_density(alpha = 0.5, fill = "gray50") +
+  geom_vline(xintercept = mean(normal_inverse_model$resample$Rsquared),
+             linetype = "dashed") +
+  theme_bw() 
+p4 <- ggplot(data = normal_inverse_model$resample, aes(x = 1, y = Rsquared)) +
+  geom_boxplot(outlier.shape = NA, alpha = 0.5, fill = "gray50") +
+  geom_jitter(width = 0.05) +
+  labs(x = "") +
+  theme_bw() +
+  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
+p5 <- ggplot(data = normal_inverse_model$resample, aes(x = MAE)) +
+  geom_density(alpha = 0.5, fill = "gray50") +
+  geom_vline(xintercept = mean(normal_inverse_model$resample$MAE),
+             linetype = "dashed") +
+  theme_bw() 
+p6 <- ggplot(data = normal_inverse_model$resample, aes(x = 1, y = MAE)) +
+  geom_boxplot(outlier.shape = NA, alpha = 0.5, fill = "gray50") +
+  geom_jitter(width = 0.05) +
+  labs(x = "") +
+  theme_bw() +
+  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
+
+nim_plot <- ggarrange(p1, p2, p3, p4, p5, p6, ncol = 2, nrow = 3)
+nim_plot <- annotate_figure(nim_plot,top = text_grob("Evaluación del Modelo Normal Inversa con enlace logarítmico", size = 15))
+nim_plot
 
 ### -----------------------------------------------------
 ### Modelo KNN
